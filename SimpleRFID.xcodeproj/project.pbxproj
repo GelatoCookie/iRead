@@ -1,0 +1,390 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5DD0A5852823639D005307B5 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DD0A5842823639D005307B5 /* libz.tbd */; };
+		5DD0A587282363C2005307B5 /* libintegratedsdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DD0A586282363C2005307B5 /* libintegratedsdk.a */; };
+		5DD0A589282363F0005307B5 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DD0A588282363F0005307B5 /* AudioToolbox.framework */; };
+		8815B0B31D1CB240007A4CB7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 8815B0B21D1CB240007A4CB7 /* main.m */; };
+		8815B0B61D1CB240007A4CB7 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8815B0B51D1CB240007A4CB7 /* AppDelegate.m */; };
+		8815B0B91D1CB240007A4CB7 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8815B0B81D1CB240007A4CB7 /* ViewController.m */; };
+		8815B0BC1D1CB240007A4CB7 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8815B0BA1D1CB240007A4CB7 /* Main.storyboard */; };
+		8815B0BE1D1CB240007A4CB7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8815B0BD1D1CB240007A4CB7 /* Assets.xcassets */; };
+		8815B0C11D1CB240007A4CB7 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8815B0BF1D1CB240007A4CB7 /* LaunchScreen.storyboard */; };
+		8815B0C91D1CB2CA007A4CB7 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8815B0C81D1CB2CA007A4CB7 /* CoreBluetooth.framework */; };
+		8815B0CB1D1CB2D7007A4CB7 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8815B0CA1D1CB2D7007A4CB7 /* ExternalAccessory.framework */; };
+		8831F3781D91C43B004A4AA2 /* MessageUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8831F3771D91C43B004A4AA2 /* MessageUI.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		5DD0A5842823639D005307B5 /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		5DD0A586282363C2005307B5 /* libintegratedsdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libintegratedsdk.a; path = "symbolrfid-sdk/libintegratedsdk.a"; sourceTree = "<group>"; };
+		5DD0A588282363F0005307B5 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
+		8815B0AE1D1CB240007A4CB7 /* SimpleRFID.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleRFID.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8815B0B21D1CB240007A4CB7 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = main.m; path = SimpleRFID/main.m; sourceTree = "<group>"; };
+		8815B0B41D1CB240007A4CB7 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		8815B0B51D1CB240007A4CB7 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		8815B0B71D1CB240007A4CB7 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		8815B0B81D1CB240007A4CB7 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		8815B0BB1D1CB240007A4CB7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		8815B0BD1D1CB240007A4CB7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		8815B0C01D1CB240007A4CB7 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8815B0C21D1CB240007A4CB7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		8815B0C81D1CB2CA007A4CB7 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
+		8815B0CA1D1CB2D7007A4CB7 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
+		8815B0CC1D1CB33D007A4CB7 /* libsymbolrfid-sdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libsymbolrfid-sdk.a"; path = "symbolrfid-sdk/libsymbolrfid-sdk.a"; sourceTree = "<group>"; };
+		8815B0CE1D1CB39A007A4CB7 /* SimpleRFID.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = SimpleRFID.entitlements; sourceTree = "<group>"; };
+		8831F3771D91C43B004A4AA2 /* MessageUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MessageUI.framework; path = System/Library/Frameworks/MessageUI.framework; sourceTree = SDKROOT; };
+		885242F31D95C4B100164E33 /* libsymbolbt-sdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libsymbolbt-sdk.a"; path = "symbolbt-sdk/libsymbolbt-sdk.a"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		8815B0AB1D1CB240007A4CB7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5DD0A589282363F0005307B5 /* AudioToolbox.framework in Frameworks */,
+				5DD0A587282363C2005307B5 /* libintegratedsdk.a in Frameworks */,
+				5DD0A5852823639D005307B5 /* libz.tbd in Frameworks */,
+				8831F3781D91C43B004A4AA2 /* MessageUI.framework in Frameworks */,
+				8815B0CB1D1CB2D7007A4CB7 /* ExternalAccessory.framework in Frameworks */,
+				8815B0C91D1CB2CA007A4CB7 /* CoreBluetooth.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		8815B0A51D1CB240007A4CB7 = {
+			isa = PBXGroup;
+			children = (
+				8831F3771D91C43B004A4AA2 /* MessageUI.framework */,
+				8815B0CC1D1CB33D007A4CB7 /* libsymbolrfid-sdk.a */,
+				8815B0CA1D1CB2D7007A4CB7 /* ExternalAccessory.framework */,
+				8815B0C81D1CB2CA007A4CB7 /* CoreBluetooth.framework */,
+				8815B0B01D1CB240007A4CB7 /* SimpleRFID */,
+				8815B0AF1D1CB240007A4CB7 /* Products */,
+				885242F21D95C4B100164E33 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		8815B0AF1D1CB240007A4CB7 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				8815B0AE1D1CB240007A4CB7 /* SimpleRFID.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		8815B0B01D1CB240007A4CB7 /* SimpleRFID */ = {
+			isa = PBXGroup;
+			children = (
+				8815B0B41D1CB240007A4CB7 /* AppDelegate.h */,
+				8815B0CE1D1CB39A007A4CB7 /* SimpleRFID.entitlements */,
+				8815B0B51D1CB240007A4CB7 /* AppDelegate.m */,
+				8815B0B71D1CB240007A4CB7 /* ViewController.h */,
+				8815B0B81D1CB240007A4CB7 /* ViewController.m */,
+				8815B0BA1D1CB240007A4CB7 /* Main.storyboard */,
+				8815B0BD1D1CB240007A4CB7 /* Assets.xcassets */,
+				8815B0BF1D1CB240007A4CB7 /* LaunchScreen.storyboard */,
+				8815B0C21D1CB240007A4CB7 /* Info.plist */,
+				8815B0B11D1CB240007A4CB7 /* Supporting Files */,
+			);
+			path = SimpleRFID;
+			sourceTree = "<group>";
+		};
+		8815B0B11D1CB240007A4CB7 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		885242F21D95C4B100164E33 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8815B0B21D1CB240007A4CB7 /* main.m */,
+				5DD0A588282363F0005307B5 /* AudioToolbox.framework */,
+				5DD0A586282363C2005307B5 /* libintegratedsdk.a */,
+				5DD0A5842823639D005307B5 /* libz.tbd */,
+				885242F31D95C4B100164E33 /* libsymbolbt-sdk.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		8815B0AD1D1CB240007A4CB7 /* SimpleRFID */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 8815B0C51D1CB240007A4CB7 /* Build configuration list for PBXNativeTarget "SimpleRFID" */;
+			buildPhases = (
+				8815B0AA1D1CB240007A4CB7 /* Sources */,
+				8815B0AB1D1CB240007A4CB7 /* Frameworks */,
+				8815B0AC1D1CB240007A4CB7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SimpleRFID;
+			productName = SimpleRFID;
+			productReference = 8815B0AE1D1CB240007A4CB7 /* SimpleRFID.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8815B0A61D1CB240007A4CB7 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 1330;
+				ORGANIZATIONNAME = "Zebra Technologies";
+				TargetAttributes = {
+					8815B0AD1D1CB240007A4CB7 = {
+						CreatedOnToolsVersion = 7.3.1;
+						DevelopmentTeam = DNSTESXL8W;
+						SystemCapabilities = {
+							com.apple.BackgroundModes = {
+								enabled = 1;
+							};
+						};
+					};
+				};
+			};
+			buildConfigurationList = 8815B0A91D1CB240007A4CB7 /* Build configuration list for PBXProject "SimpleRFID" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8815B0A51D1CB240007A4CB7;
+			productRefGroup = 8815B0AF1D1CB240007A4CB7 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8815B0AD1D1CB240007A4CB7 /* SimpleRFID */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8815B0AC1D1CB240007A4CB7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8815B0C11D1CB240007A4CB7 /* LaunchScreen.storyboard in Resources */,
+				8815B0BE1D1CB240007A4CB7 /* Assets.xcassets in Resources */,
+				8815B0BC1D1CB240007A4CB7 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		8815B0AA1D1CB240007A4CB7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8815B0B91D1CB240007A4CB7 /* ViewController.m in Sources */,
+				8815B0B61D1CB240007A4CB7 /* AppDelegate.m in Sources */,
+				8815B0B31D1CB240007A4CB7 /* main.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		8815B0BA1D1CB240007A4CB7 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8815B0BB1D1CB240007A4CB7 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		8815B0BF1D1CB240007A4CB7 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8815B0C01D1CB240007A4CB7 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		8815B0C31D1CB240007A4CB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		8815B0C41D1CB240007A4CB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		8815B0C61D1CB240007A4CB7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = SimpleRFID/SimpleRFID.entitlements;
+				DEVELOPMENT_TEAM = DNSTESXL8W;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/symbolrfid-sdk/**";
+				INFOPLIST_FILE = SimpleRFID/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/symbolrfid-sdk";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zebra.RFIDDemoApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		8815B0C71D1CB240007A4CB7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_ENTITLEMENTS = SimpleRFID/SimpleRFID.entitlements;
+				DEVELOPMENT_TEAM = DNSTESXL8W;
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/symbolrfid-sdk/**";
+				INFOPLIST_FILE = SimpleRFID/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(PROJECT_DIR)/symbolrfid-sdk";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zebra.RFIDDemoApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		8815B0A91D1CB240007A4CB7 /* Build configuration list for PBXProject "SimpleRFID" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8815B0C31D1CB240007A4CB7 /* Debug */,
+				8815B0C41D1CB240007A4CB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		8815B0C51D1CB240007A4CB7 /* Build configuration list for PBXNativeTarget "SimpleRFID" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8815B0C61D1CB240007A4CB7 /* Debug */,
+				8815B0C71D1CB240007A4CB7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 8815B0A61D1CB240007A4CB7 /* Project object */;
+}

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>colors</key>
+	<array/>
+	<key>images</key>
+	<array>
+		<dict>
+			<key>catalogPath</key>
+			<string>/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/SimpleRFID/Assets.xcassets</string>
+			<key>objcSymbol</key>
+			<string>ACImageNameConnected</string>
+			<key>relativePath</key>
+			<string>./Connected.imageset</string>
+			<key>swiftSymbol</key>
+			<string>connected</string>
+		</dict>
+		<dict>
+			<key>catalogPath</key>
+			<string>/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/SimpleRFID/Assets.xcassets</string>
+			<key>objcSymbol</key>
+			<string>ACImageNameDisconnected</string>
+			<key>relativePath</key>
+			<string>./Disconnected.imageset</string>
+			<key>swiftSymbol</key>
+			<string>disconnected</string>
+		</dict>
+		<dict>
+			<key>catalogPath</key>
+			<string>/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/SimpleRFID/Assets.xcassets</string>
+			<key>objcSymbol</key>
+			<string>ACImageNameBarcodeReader</string>
+			<key>relativePath</key>
+			<string>./barcodeReader.imageset</string>
+			<key>swiftSymbol</key>
+			<string>barcodeReader</string>
+		</dict>
+		<dict>
+			<key>catalogPath</key>
+			<string>/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/SimpleRFID/Assets.xcassets</string>
+			<key>objcSymbol</key>
+			<string>ACImageNameRfidReader</string>
+			<key>relativePath</key>
+			<string>./rfidReader.imageset</string>
+			<key>swiftSymbol</key>
+			<string>rfidReader</string>
+		</dict>
+		<dict>
+			<key>catalogPath</key>
+			<string>/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/SimpleRFID/Assets.xcassets</string>
+			<key>objcSymbol</key>
+			<string>ACImageNameRfidTag</string>
+			<key>relativePath</key>
+			<string>./rfidTag.imageset</string>
+			<key>swiftSymbol</key>
+			<string>rfidTag</string>
+		</dict>
+	</array>
+	<key>symbols</key>
+	<array/>
+</dict>
+</plist>

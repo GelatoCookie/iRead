@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build iOS app",
+			"type": "shell",
+			"command": "xcodebuild -project SimpleRFID.xcodeproj -scheme SimpleRFID -configuration Release",
+			"isBackground": false,
+			"problemMatcher": [
+				"$xcode"
+			],
+			"group": "build"
+		}
+	]
+}

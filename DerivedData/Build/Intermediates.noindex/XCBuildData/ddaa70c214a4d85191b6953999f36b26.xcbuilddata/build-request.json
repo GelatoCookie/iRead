@@ -1,0 +1,70 @@
+{
+  "buildCommand" : {
+    "command" : "build",
+    "skipDependencies" : false,
+    "style" : "buildOnly"
+  },
+  "configuredTargets" : [
+    {
+      "guid" : "ba7500f9fbad4df8ea175050b8f81f3de79fddd87d6941daaf75da8d985f4703"
+    }
+  ],
+  "containerPath" : "/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/SimpleRFID.xcodeproj",
+  "continueBuildingAfterErrors" : false,
+  "dependencyScope" : "workspace",
+  "enableIndexBuildArena" : false,
+  "hideShellScriptEnvironment" : false,
+  "parameters" : {
+    "action" : "build",
+    "activeArchitecture" : "undefined_arch",
+    "activeRunDestination" : {
+      "disableOnlyActiveArch" : true,
+      "platform" : "iphoneos",
+      "sdk" : "iphoneos26.2",
+      "sdkVariant" : "iphoneos",
+      "supportedArchitectures" : [
+        "armv4t",
+        "armv5",
+        "armv6",
+        "armv7",
+        "armv7f",
+        "armv7s",
+        "armv7k",
+        "arm64",
+        "arm64e"
+      ],
+      "targetArchitecture" : "undefined_arch"
+    },
+    "arenaInfo" : {
+      "buildIntermediatesPath" : "/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/DerivedData/Build/Intermediates.noindex",
+      "buildProductsPath" : "/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/DerivedData/Build/Products",
+      "derivedDataPath" : "/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/DerivedData",
+      "indexDataStoreFolderPath" : "/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/DerivedData/Index.noindex/DataStore",
+      "indexEnableDataStore" : true,
+      "indexPCHPath" : "/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/DerivedData/Index.noindex/PrecompiledHeaders",
+      "pchPath" : "/Users/chucklin/Documents/Documents - Chuck’s MacBook Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/DerivedData/Build/Intermediates.noindex/PrecompiledHeaders"
+    },
+    "configurationName" : "Debug",
+    "overrides" : {
+      "commandLine" : {
+        "table" : {
+          "CODE_SIGNING_ALLOWED" : "NO"
+        }
+      },
+      "synthesized" : {
+        "table" : {
+          "ACTION" : "build",
+          "ENABLE_PREVIEWS" : "NO",
+          "ENABLE_XOJIT_PREVIEWS" : "YES",
+          "ONLY_ACTIVE_ARCH" : "YES"
+        }
+      }
+    }
+  },
+  "schemeCommand" : "launch",
+  "showNonLoggedProgress" : true,
+  "useDryRun" : false,
+  "useImplicitDependencies" : true,
+  "useLegacyBuildLocations" : false,
+  "useParallelTargets" : true
+}

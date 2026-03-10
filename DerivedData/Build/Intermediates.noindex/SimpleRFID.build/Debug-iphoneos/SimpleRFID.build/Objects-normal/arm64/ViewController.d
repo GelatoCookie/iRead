@@ -1,0 +1,42 @@
+dependencies: \
+  /Users/chucklin/Documents/Documents\ -\ Chuck’s\ MacBook\ Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/SimpleRFID/ViewController.m \
+  /Users/chucklin/Documents/Documents\ -\ Chuck’s\ MacBook\ Pro/iOS/11_ProClip/iRead_newSDK_Rel_ProCLI_v04_working/SimpleRFID/ViewController.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/UIKit.framework/Modules/module.modulemap \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/Foundation.framework/Modules/module.modulemap \
+  symbolrfid-sdk/include/RfidSdkApi.h \
+  symbolrfid-sdk/include/RfidSdkDefs.h \
+  symbolrfid-sdk/include/RfidSdkApiDelegate.h \
+  symbolrfid-sdk/include/RfidReaderInfo.h \
+  symbolrfid-sdk/include/RfidTagData.h \
+  symbolrfid-sdk/include/AccessOperationCode.h \
+  symbolrfid-sdk/include/RfidBatteryEvent.h \
+  symbolrfid-sdk/include/RfidWlanScanList.h \
+  symbolrfid-sdk/include/RfidReportConfig.h \
+  symbolrfid-sdk/include/RfidAccessConfig.h \
+  symbolrfid-sdk/include/RfidAntennaConfiguration.h \
+  symbolrfid-sdk/include/RfidDynamicPowerConfig.h \
+  symbolrfid-sdk/include/RfidSingulationConfig.h \
+  symbolrfid-sdk/include/RfidTagReportConfig.h \
+  symbolrfid-sdk/include/RfidReaderVersionInfo.h \
+  symbolrfid-sdk/include/RfidReaderCapabilitiesInfo.h \
+  symbolrfid-sdk/include/RfidStartTriggerConfig.h \
+  symbolrfid-sdk/include/RfidStopTriggerConfig.h \
+  symbolrfid-sdk/include/RfidRegulatoryConfig.h \
+  symbolrfid-sdk/include/RfidPreFilter.h \
+  symbolrfid-sdk/include/RfidAttribute.h \
+  symbolrfid-sdk/include/RfidAccessCriteria.h \
+  symbolrfid-sdk/include/RfidTagFilter.h \
+  symbolrfid-sdk/include/RfidAccessParameters.h \
+  symbolrfid-sdk/include/RfidUniqueTagsReport.h \
+  symbolrfid-sdk/include/RfidUntraceableConfig.h \
+  symbolrfid-sdk/include/RfidGetWifiStatusInfo.h \
+  symbolrfid-sdk/include/ISbtSdkApi.h \
+  symbolrfid-sdk/include/SbtSdkDefs.h \
+  symbolrfid-sdk/include/ISbtSdkApiDelegate.h \
+  symbolrfid-sdk/include/SbtScannerInfo.h \
+  symbolrfid-sdk/include/FirmwareUpdateEvent.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/CoreBluetooth.framework/Modules/module.modulemap \
+  symbolrfid-sdk/include/RfidSdkFactory.h \
+  symbolrfid-sdk/include/SbtSdkFactory.h \
+  symbolrfid-sdk/include/RfidOperEndSummaryEvent.h \
+  /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/CoreData.framework/Modules/module.modulemap
