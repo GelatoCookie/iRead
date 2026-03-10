@@ -21,15 +21,19 @@
     id <ISbtSdkApi> scannerSdk;
     // Array of detected RFID readers
     NSMutableArray *m_readerList;
+    NSArray *m_readerListSnapshot;
     NSLock *m_readerListGuard;
     // Array of detected scanners
     NSMutableArray *m_scannerList;
+    NSArray *m_scannerListSnapshot;
     NSLock *m_scannerListGuard;
     // RFID and Scanner Data
     NSLock *m_tagDBGuard;
     NSMutableDictionary *m_tagDB;
+    NSMutableSet<NSString *> *m_rfidTagEPCs;
     NSArray<NSString *> *m_tagKeysSnapshot;
-    BOOL m_tagRefreshScheduled;
+    NSString *m_selectedTagEPC;
+    NSTimer *m_tagRefreshTimer;
     int iTotal;
     bool b_isReading;
     bool b_isConnected;
@@ -49,13 +53,17 @@
     rfidSdk = nil;
     scannerSdk = nil;
     m_readerList = [[NSMutableArray alloc] init];
+    m_readerListSnapshot = @[];
     m_readerListGuard = [[NSLock alloc] init];
     m_scannerList = [[NSMutableArray alloc] init];
+    m_scannerListSnapshot = @[];
     m_scannerListGuard = [[NSLock alloc] init];
     m_tagDBGuard = [[NSLock alloc] init];
     m_tagDB = [[NSMutableDictionary alloc]init];
+    m_rfidTagEPCs = [[NSMutableSet alloc] init];
     m_tagKeysSnapshot = @[];
-    m_tagRefreshScheduled = NO;
+    m_selectedTagEPC = nil;
+    m_tagRefreshTimer = nil;
     
     m_stopTriggerConfig = [[srfidStopTriggerConfig alloc]init];
     m_startTriggerConfig = [[srfidStartTriggerConfig alloc]init];
@@ -81,6 +89,7 @@
     [self.tbViewReaderList setDelegate:self];
     [self.tbViewReaderList setDataSource:self];
     [self.tbViewReaderList setDelegate:self];
+    [self.tbViewTagList setDelegate:self];
     [self.tbViewTagList setDataSource:self];
     [self.tbViewScannerList setDelegate:self];
     [self.tbViewScannerList setDataSource:self];
@@ -90,9 +99,81 @@
     [self startupScanner];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self startTagListRefreshTimer];
+    [self reloadReaderListOnMainThread];
+    [self reloadScannerListOnMainThread];
+    [self refreshTagList];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [self stopTagListRefreshTimer];
+}
+
+- (void)dealloc
+{
+    [self stopTagListRefreshTimer];
+}
+
+- (srfidReaderInfo *)copyReaderInfo:(srfidReaderInfo *)readerInfo
+{
+    srfidReaderInfo *snapshot = [[srfidReaderInfo alloc] init];
+    [snapshot setActive:[readerInfo isActive]];
+    [snapshot setReaderID:[readerInfo getReaderID]];
+    [snapshot setConnectionType:[readerInfo getConnectionType]];
+    [snapshot setReaderName:[readerInfo getReaderName]];
+    [snapshot setReaderModel:[readerInfo getReaderModel]];
+    return snapshot;
+}
+
+- (NSArray *)readerListSnapshot
+{
+    NSMutableArray *snapshot = [[NSMutableArray alloc] init];
+
+    if (YES == [m_readerListGuard lockBeforeDate:[NSDate distantFuture]]) {
+        for (srfidReaderInfo *readerInfo in m_readerList) {
+            [snapshot addObject:[self copyReaderInfo:readerInfo]];
+        }
+        [m_readerListGuard unlock];
+    }
+
+    return [snapshot copy];
+}
+
+- (SbtScannerInfo *)copyScannerInfo:(SbtScannerInfo *)scannerInfo
+{
+    SbtScannerInfo *snapshot = [[SbtScannerInfo alloc] init];
+    [snapshot setActive:[scannerInfo isActive]];
+    [snapshot setScannerID:[scannerInfo getScannerID]];
+    [snapshot setAutoCommunicationSessionReestablishment:[scannerInfo getAutoCommunicationSessionReestablishment]];
+    [snapshot setConnectionType:[scannerInfo getConnectionType]];
+    [snapshot setScannerName:[scannerInfo getScannerName]];
+    [snapshot setScannerModel:[scannerInfo getScannerModel]];
+    return snapshot;
+}
+
+- (NSArray *)scannerListSnapshot
+{
+    NSMutableArray *snapshot = [[NSMutableArray alloc] init];
+
+    if (YES == [m_scannerListGuard lockBeforeDate:[NSDate distantFuture]]) {
+        for (SbtScannerInfo *scannerInfo in m_scannerList) {
+            [snapshot addObject:[self copyScannerInfo:scannerInfo]];
+        }
+        [m_scannerListGuard unlock];
+    }
+
+    return [snapshot copy];
+}
+
 - (void)reloadReaderListOnMainThread
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        self->m_readerListSnapshot = [self readerListSnapshot];
         [self.tbViewReaderList reloadData];
     });
 }
@@ -100,6 +181,7 @@
 - (void)reloadScannerListOnMainThread
 {
     dispatch_async(dispatch_get_main_queue(), ^{
+        self->m_scannerListSnapshot = [self scannerListSnapshot];
         [self.tbViewScannerList reloadData];
     });
 }
@@ -108,38 +190,100 @@
 {
     if (YES == [m_tagDBGuard lockBeforeDate:[NSDate distantFuture]]) {
         [m_tagDB removeAllObjects];
-        m_tagKeysSnapshot = @[];
+        [m_rfidTagEPCs removeAllObjects];
         [m_tagDBGuard unlock];
+    }
+
+    void (^resetTagUiState)(void) = ^{
+        self->m_tagKeysSnapshot = @[];
+        self->m_selectedTagEPC = nil;
+        self.lbUnique.text = @"0";
+        [self.tbViewTagList reloadData];
+    };
+
+    if ([NSThread isMainThread]) {
+        resetTagUiState();
+    } else {
+        dispatch_async(dispatch_get_main_queue(), resetTagUiState);
     }
 }
 
-- (void)scheduleTagListRefresh
+- (BOOL)isLocatableRfidTag:(NSString *)tagEpcId
 {
-    @synchronized (self) {
-        if (m_tagRefreshScheduled) {
-            return;
-        }
-        m_tagRefreshScheduled = YES;
+    if (tagEpcId == nil || tagEpcId.length == 0) {
+        return NO;
     }
 
+    BOOL isLocatable = NO;
+    if (YES == [m_tagDBGuard lockBeforeDate:[NSDate distantFuture]]) {
+        isLocatable = [m_rfidTagEPCs containsObject:tagEpcId];
+        [m_tagDBGuard unlock];
+    }
+
+    return isLocatable;
+}
+
+- (void)resetRfidSessionStateForReaderId:(int)readerId status:(NSString *)statusMessage
+{
+    if (readerId > 0 && iConnectedRfidId > 0 && iConnectedRfidId != readerId) {
+        return;
+    }
+
+    b_isConnected = false;
+    b_isReading = false;
+    iConnectedRfidId = 0;
+    [self clearTagDatabase];
+
     dispatch_async(dispatch_get_main_queue(), ^{
-        NSArray<NSString *> *tagKeys = @[];
-        NSUInteger tagCount = 0;
-
-        if ([self->m_tagDBGuard lockBeforeDate:[NSDate distantFuture]]) {
-            tagKeys = [[self->m_tagDB allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
-            self->m_tagKeysSnapshot = tagKeys;
-            tagCount = self->m_tagDB.count;
-            [self->m_tagDBGuard unlock];
-        }
-
-        self.lbUnique.text = [NSString stringWithFormat:@"%lu", (unsigned long)tagCount];
-        [self.tbViewTagList reloadData];
-
-        @synchronized (self) {
-            self->m_tagRefreshScheduled = NO;
-        }
+        self.lbStatus.text = statusMessage;
+        self.btStart.enabled = false;
+        self.btStop.enabled = false;
+        self.btAutoScan.enabled = false;
+        self.btStopScan.enabled = false;
+        self.swtichCountRSSI.enabled = false;
     });
+}
+
+- (void)startTagListRefreshTimer
+{
+    if (m_tagRefreshTimer != nil) {
+        return;
+    }
+
+    m_tagRefreshTimer = [NSTimer scheduledTimerWithTimeInterval:0.5
+                                                         target:self
+                                                       selector:@selector(refreshTagList)
+                                                       userInfo:nil
+                                                        repeats:YES];
+}
+
+- (void)stopTagListRefreshTimer
+{
+    [m_tagRefreshTimer invalidate];
+    m_tagRefreshTimer = nil;
+}
+
+- (void)refreshTagList
+{
+    if (![NSThread isMainThread]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self refreshTagList];
+        });
+        return;
+    }
+
+    NSArray<NSString *> *tagKeys = @[];
+    NSUInteger tagCount = 0;
+
+    if ([m_tagDBGuard lockBeforeDate:[NSDate distantFuture]]) {
+        tagKeys = [[m_tagDB allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+        m_tagKeysSnapshot = tagKeys;
+        tagCount = m_tagDB.count;
+        [m_tagDBGuard unlock];
+    }
+
+    self.lbUnique.text = [NSString stringWithFormat:@"%lu", (unsigned long)tagCount];
+    [self.tbViewTagList reloadData];
 }
 
 - (void)recordRfidTag:(srfidTagData *)tagData
@@ -149,6 +293,7 @@
 
     if (YES == [m_tagDBGuard lockBeforeDate:[NSDate distantFuture]]) {
         [m_tagDB setObject:tagRSSI forKey:tagID];
+        [m_rfidTagEPCs addObject:tagID];
         [m_tagDBGuard unlock];
     }
 }
@@ -166,7 +311,6 @@
         [m_tagDBGuard unlock];
     }
 
-    [self scheduleTagListRefresh];
 }
 
 - (void) startupRfid
@@ -257,9 +401,7 @@
     
     SRFID_RESULT result = [rfidSdk srfidTerminateCommunicationSession:readerId];
     if(result == SRFID_RESULT_SUCCESS) {
-        self.lbStatus.text = @"Disconnected OK";
-        self.btStart.enabled = false;
-        self.btStop.enabled = false;
+        [self resetRfidSessionStateForReaderId:readerId status:@"Disconnected OK"];
     } else{
         self.lbStatus.text = @"ERROR: Disconnect RFID";
         NSLog(@"iRead: Disconnect ERROR = %d", result);
@@ -272,13 +414,11 @@
     SBT_RESULT result = [scannerSdk sbtEstablishCommunicationSession:scannerId];
     if(result == SBT_RESULT_SUCCESS) {
         self.lbStatus.text = @"Barcode Scanner Connected";
-        self.btAutoScan.enabled = true;
         self.btStopScan.enabled = false;
     }
     else {
         NSLog(@"iRead: Connect Scanner ERROR = %d", result);
         self.lbStatus.text = @"ERROR: Connect Barcode Scanner";
-        self.btAutoScan.enabled = false;
         self.btStopScan.enabled = false;
     }
 }
@@ -294,7 +434,6 @@
     SBT_RESULT result = [scannerSdk sbtTerminateCommunicationSession:scannerId];
     if(result == SBT_RESULT_SUCCESS) {
         self.lbStatus.text = @"Barcode Scanner Disconnected";
-        self.btAutoScan.enabled = false;
         self.btStopScan.enabled = false;
     }
     else {
@@ -382,15 +521,15 @@
 }
 
 
--(void) startLocation: (int) readerId
+-(void) startLocation: (int) readerId tagEpcId:(NSString *)tagEpcId
 {
     NSLog(@"iRead: @@@@@ srfidStartTagLocationing API Command, RFID Reader ID=%d", readerId);
-    if(rfidSdk!=nil) {
+    if(rfidSdk!=nil && tagEpcId != nil && tagEpcId.length > 0) {
         //[self setAFTriggerStop:iConnectedRfidId ];
         //[self setAFTriggerStart:iConnectedRfidId ];
         
         NSString *staus_msg = [[NSString alloc]init];
-        [rfidSdk srfidStartTagLocationing:1 aTagEpcId:@"E280689400004015B09838CE" aStatusMessage:&staus_msg];
+        [rfidSdk srfidStartTagLocationing:readerId aTagEpcId:tagEpcId aStatusMessage:&staus_msg];
     }
 }
 
@@ -507,7 +646,7 @@
 -(void) startTagLocationing: (int) scannerId
 {
     NSLog(@"iRead: ready to startLocation scannerId=%d", scannerId);
-    [self startLocation:scannerId];
+    [self startLocation:scannerId tagEpcId:m_selectedTagEPC];
 }
 
 -(void) stopTagLocationing: (int) scannerId
@@ -519,33 +658,44 @@
 /// Display alert message
 /// @param title Title string
 /// @param messgae message string
+- (void)presentAlertWithTitle:(NSString *)title message:(NSString *)message
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        UIViewController *presenter = self;
+        while (presenter.presentedViewController != nil && ![presenter.presentedViewController isKindOfClass:[UIAlertController class]]) {
+            presenter = presenter.presentedViewController;
+        }
+
+        if (presenter.presentedViewController != nil) {
+            NSLog(@"iRead: Skip alert presentation while another alert is visible. title=%@", title);
+            return;
+        }
+
+        if (presenter.view.window == nil) {
+            NSLog(@"iRead: Skip alert presentation because the view is not visible. title=%@", title);
+            return;
+        }
+
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:title
+                                                                       message:message
+                                                                preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *okButton = [UIAlertAction actionWithTitle:@"OK"
+                                                           style:UIAlertActionStyleDefault
+                                                         handler:^(UIAlertAction *action) {
+                                                         }];
+        [alert addAction:okButton];
+        [presenter presentViewController:alert animated:YES completion:nil];
+    });
+}
+
 -(void)showAlertMessageWithTitle:(NSString*)title withMessage:(NSString*)messgae{
-    UIAlertController * alert = [UIAlertController
-                    alertControllerWithTitle:title
-                                     message:messgae
-                              preferredStyle:UIAlertControllerStyleAlert];
-    UIAlertAction* okButton = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
-                                handler:^(UIAlertAction * action) {
-                                    //Handle ok action
-                                }];
-    [alert addAction:okButton];
-    [self presentViewController:alert animated:YES completion:nil];
+    [self presentAlertWithTitle:title message:messgae];
 }
 
 
 - (void) messageBox:(NSString*)title withMessage:(NSString*)messgae
 {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        UIAlertController* alert = [UIAlertController alertControllerWithTitle:title
-                                                                       message:messgae
-                                                                preferredStyle:UIAlertControllerStyleAlert];
-        
-        UIAlertAction* defaultAction = [UIAlertAction actionWithTitle:@"OK" style:UIAlertActionStyleDefault
-                                                              handler:^(UIAlertAction * action) {}];
-        
-        [alert addAction:defaultAction];
-        [self presentViewController:alert animated:YES completion:nil];
-    });
+    [self presentAlertWithTitle:title message:messgae];
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -563,6 +713,7 @@
     
     // Handle reader appeared event
     BOOL found = NO;
+    NSInteger readerCount = 0;
     
     // Update reader list
     if (YES == [m_readerListGuard lockBeforeDate:[NSDate distantFuture]])
@@ -589,14 +740,14 @@
             [m_readerList addObject:reader_info];
             NSLog(@"iRead: m_readerList count = %d",(int) [m_readerList count]);
         }
-        
+        readerCount = m_readerList.count;
         [m_readerListGuard unlock];
     }
     ///////////////////////////////
     // Update RFID Reader UI List
     [self reloadReaderListOnMainThread];
     
-    if ([m_readerList count] >1){
+    if (readerCount > 1){
         [self messageBox:@"WARNING: MULTIPLE READERS FOUND " withMessage:@"UNPAIR BLUETOOTH READER\r\n"];
     }
 }
@@ -623,6 +774,7 @@
         }
         [m_readerListGuard unlock];
     }
+    [self resetRfidSessionStateForReaderId:readerID status:@"Reader disconnected"];
     ///////////////////////////////
     // UI RFID Reader
     [self reloadReaderListOnMainThread];
@@ -642,6 +794,8 @@
 {
     NSLog(@"iRead: srfidEventCommunicationSessionEstablished RFID Reader ID=%d, Name=%@", [activeReader getReaderID], [activeReader getReaderName]);
     BOOL found = NO;
+    int connectedReaderId = [activeReader getReaderID];
+    BOOL shouldConfigureReader = NO;
     
     if (YES == [m_readerListGuard lockBeforeDate:[NSDate distantFuture]])
     {
@@ -652,46 +806,41 @@
                 [ex_info setActive:[activeReader isActive]];
                 [ex_info setConnectionType:[activeReader getConnectionType]];
                 found = YES;
-                [rfidSdk srfidEstablishAsciiConnection:[activeReader getReaderID] aPassword:nil];
-                NSLog(@"iRead: srfidEventCommunicationSessionEstablished Name=%@, setActive=%d", [activeReader getReaderName], [activeReader isActive]);
-                iConnectedRfidId = [activeReader getReaderID];
-                //[self setAFTriggerStop:[activeReader getReaderID] ];
-                //[self setAFTriggerStart:[activeReader getReaderID] ];
-                //Single Reasder Mode
-                //[self setAFTriggerStop:iConnectedRfidId ];
-                //[self setAFTriggerStart:iConnectedRfidId ];
-                
-                
-                //Disable BatchMode
-//                SRFID_BATCHMODECONFIG batchMode = SRFID_BATCHMODECONFIG_DISABLE;
-//                NSString *staus_msg = [[NSString alloc]init];
-//                [rfidSdk srfidSetBatchModeConfig:iConnectedRfidId aBatchModeConfig:batchMode aStatusMessage:&staus_msg];
-//                
-//                b_isConnected = true;
-                NSLog(@"iRead: SET RFD40 ALIVE TIMEOUT");
-                [self changeOffModeTimeout:iConnectedRfidId];
-
+                shouldConfigureReader = YES;
                 break;
             }
         }
         if (found == NO)
         {
-            [m_readerList addObject:activeReader];
+            [m_readerList addObject:[self copyReaderInfo:activeReader]];
+            shouldConfigureReader = YES;
         }
         [m_readerListGuard unlock];
-        /////////////////////////
-        //notify UI refresh
-        dispatch_async(dispatch_get_main_queue(), ^{
-            [self reloadReaderListOnMainThread];
-            self.btAutoScan.enabled = true;
-        });
     }
+
+    if (shouldConfigureReader) {
+        b_isConnected = true;
+        iConnectedRfidId = connectedReaderId;
+        [rfidSdk srfidEstablishAsciiConnection:connectedReaderId aPassword:nil];
+        NSLog(@"iRead: srfidEventCommunicationSessionEstablished Name=%@, setActive=%d", [activeReader getReaderName], [activeReader isActive]);
+        NSLog(@"iRead: SET RFD40 ALIVE TIMEOUT");
+        [self changeOffModeTimeout:connectedReaderId];
+    }
+
+    /////////////////////////
+    //notify UI refresh
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self reloadReaderListOnMainThread];
+        self.btStart.enabled = true;
+        self.btStop.enabled = true;
+        self.btAutoScan.enabled = true;
+        self.swtichCountRSSI.enabled = true;
+    });
 }
 
 - (void)srfidEventCommunicationSessionTerminated:(int)readerID
 {
     NSLog(@"iRead: srfidEventCommunicationSessionTerminated RFID Reader ID=%d", readerID);
-    b_isConnected = false;
     // Update device list
     if (YES == [m_readerListGuard lockBeforeDate:[NSDate distantFuture]])
     {
@@ -707,6 +856,7 @@
         }
         [m_readerListGuard unlock];
     }
+    [self resetRfidSessionStateForReaderId:readerID status:@"Reader disconnected"];
     [self reloadReaderListOnMainThread];
 }
 
@@ -719,15 +869,12 @@
     {
         [self recordRfidTag:tagData];
 
-        if(iTotal%17==1){
-            [self scheduleTagListRefresh];
-        }
     }
 }
 
 - (void)updateMyAppUI
 {
-    [self scheduleTagListRefresh];
+    [self refreshTagList];
 }
 
 
@@ -759,7 +906,7 @@
             long totalTimeUS =  [(srfidOperEndSummaryEvent *)notificationData getTotalTimeUs];
             self.lbStatus.text = [NSString stringWithFormat:@"Total tags=%d Time=%ldms", totalTag, totalTimeUS/1000];
             NSLog(@"iRead: srfidEventStatusNotify, Decode notificationData: %@", self.lbStatus.text);
-            [self scheduleTagListRefresh];
+            [self refreshTagList];
         });
     }
     else if (SRFID_EVENT_STATUS_OPERATION_BATCHMODE == event)
@@ -767,20 +914,25 @@
         NSLog(@"iRead: ******************************************");
         NSLog(@"iRead: * SRFID_EVENT_STATUS_OPERATION_BATCHMODE *");
         NSLog(@"iRead: ******************************************");
+
+        if (readerID <= 0) {
+            NSLog(@"iRead: Skip batch mode cleanup because readerID is invalid");
+            return;
+        }
         
         NSLog(@"ECRT: Force Stop");
         NSString *staus_msg = [[NSString alloc]init];
-        [rfidSdk srfidStopInventory:iConnectedRfidId aStatusMessage:&staus_msg];
+        [rfidSdk srfidStopInventory:readerID aStatusMessage:&staus_msg];
         
         NSLog(@"ECRT: srfidPurgeTags");
-        [rfidSdk srfidPurgeTags:iConnectedRfidId aStatusMessage:&staus_msg];
+        [rfidSdk srfidPurgeTags:readerID aStatusMessage:&staus_msg];
         
         NSLog(@"ECRT: srfidGetConfigurations");
         [rfidSdk srfidGetConfigurations];
         
         
         SRFID_BATCHMODECONFIG batchMode = SRFID_BATCHMODECONFIG_DISABLE;
-        [rfidSdk srfidSetBatchModeConfig:iConnectedRfidId aBatchModeConfig:batchMode aStatusMessage:&staus_msg];
+        [rfidSdk srfidSetBatchModeConfig:readerID aBatchModeConfig:batchMode aStatusMessage:&staus_msg];
 
     }
 }
@@ -798,7 +950,7 @@
             }else{
                 NSLog(@"iRead: Reset Counter");
                 self->iTotal = 0;
-                [self->m_tagDB removeAllObjects]; //clear tag DB
+                [self clearTagDatabase];
                 
                 NSLog(@"iRead: RFID Trigger Pressed Event from readerID=%d", readerID);
                 [self inventory:readerID];
@@ -970,7 +1122,10 @@
 {
     NSLog(@"iRead: !!!new sbtEventBarcodeData: data=%@, type=%d, id=%d", barcodeData, barcodeType, scannerID);
     
-    NSString* barcodeDataNew = [NSString stringWithUTF8String:[barcodeData bytes]];
+    NSString *barcodeDataNew = [[NSString alloc] initWithData:barcodeData encoding:NSUTF8StringEncoding];
+    if (barcodeDataNew == nil) {
+        barcodeDataNew = [barcodeData description];
+    }
     NSLog(@"iRead: !!!new sbtEventBarcodeData: dataString=%@", barcodeDataNew);
     
     [self recordBarcodeValue:barcodeDataNew];
@@ -997,11 +1152,11 @@
 //UI tableView Cell Number
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
     if(tableView==self.tbViewReaderList) //two tableViews
-        return m_readerList.count;
+        return m_readerListSnapshot.count;
     else if (tableView==self.tbViewTagList)
         return m_tagKeysSnapshot.count;
     else if (tableView==self.tbViewScannerList)
-        return m_scannerList.count;
+        return m_scannerListSnapshot.count;
     return 1; //default
 }
 //////////////////////////////////////////////////
@@ -1013,7 +1168,7 @@
     {
         UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"reuseID"];
         int index = (int)[indexPath row];
-        srfidReaderInfo *info = [m_readerList objectAtIndex:index];
+        srfidReaderInfo *info = [m_readerListSnapshot objectAtIndex:index];
         cell.textLabel.text = [info getReaderName];
         if ([info isActive]){
             cell.imageView.image = [UIImage imageNamed:@"Connected"];
@@ -1029,7 +1184,7 @@
     {
         UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"reuseID_Scanner"];
         int index = (int)[indexPath row];
-        SbtScannerInfo *info = [m_scannerList objectAtIndex:index];
+        SbtScannerInfo *info = [m_scannerListSnapshot objectAtIndex:index];
         cell.textLabel.text = [info getScannerName];
         if ([info isActive]){
             cell.imageView.image = [UIImage imageNamed:@"Connected"];
@@ -1065,7 +1220,7 @@
         //RFID SDK Reader Managmenet API
         //1. Select Active Reader(Do Action Disconnect)
         //2. Select NOT ACTIVE (Do Action Connect)
-        srfidReaderInfo *selectdReader = [m_readerList objectAtIndex:(int)[indexPath row]];
+        srfidReaderInfo *selectdReader = [m_readerListSnapshot objectAtIndex:(int)[indexPath row]];
         if([selectdReader isActive]) {
             NSLog(@"iRead: srfidReaderInfo RFID reader management is Active (Connected), Send Disconnect Command for reader name=%@ ID=%d", [selectdReader getReaderName], [selectdReader getReaderID]);
             [self disconnectFromRfidSdk:[selectdReader getReaderID]];
@@ -1078,7 +1233,7 @@
         //Barcode Scanner SDK: Scanner Managmenet API
         //1. Select Active Scanner (Do Action Disconnect)
         //2. Select NOT ACTIVE (Do Action Connect)
-        SbtScannerInfo *selectedScanner = [m_scannerList objectAtIndex:(int)[indexPath row]];
+        SbtScannerInfo *selectedScanner = [m_scannerListSnapshot objectAtIndex:(int)[indexPath row]];
         if([selectedScanner isActive]) {
             NSLog(@"iRead: srfidReaderInfo Barcode Scanner management is Active (Connected), Send Disconnect Command for Scanner Name=%@, ID=%d", [selectedScanner getScannerName], [selectedScanner getScannerID]);
             [self disconnectFromScannerSdk:[selectedScanner getScannerID]];
@@ -1088,6 +1243,16 @@
             [self connectToScannerSdk:[selectedScanner getScannerID]];
         }
     } else {
+        if (m_tagKeysSnapshot.count > indexPath.row) {
+            NSString *selectedTagValue = m_tagKeysSnapshot[indexPath.row];
+            if ([self isLocatableRfidTag:selectedTagValue]) {
+                m_selectedTagEPC = selectedTagValue;
+                self.lbStatus.text = [NSString stringWithFormat:@"Selected tag %@", m_selectedTagEPC];
+            } else {
+                m_selectedTagEPC = nil;
+                self.lbStatus.text = @"Selected list item is a barcode, not an RFID tag";
+            }
+        }
         [tableView deselectRowAtIndexPath:indexPath animated:YES];
     }
 }
@@ -1110,15 +1275,16 @@
     self.btAutoScan.enabled = false;
     self.btStopScan.enabled = false;
     [self clearTagDatabase];
-    [self scheduleTagListRefresh];
+    [self refreshTagList];
     /////////////////////////////////////////////
     ///
     ///
     ///
-    unsigned long iReaderFound = [m_readerList count];
+    NSArray *readerListSnapshot = m_readerListSnapshot;
+    unsigned long iReaderFound = readerListSnapshot.count;
 
     if (iReaderFound>0){
-        for(srfidReaderInfo *info in m_readerList){
+        for(srfidReaderInfo *info in readerListSnapshot){
             if([info isActive]) {
                 NSLog(@"iRead: Active Reader ID=%d Name=%@, send Inventory Command.", [info getReaderID], [info getReaderName]);
                 [self inventory:[info getReaderID]];
@@ -1156,7 +1322,7 @@
     //Configure
     //NSString *staus_msg = [[NSString alloc]init];
     if(rfidSdk!=nil) {
-        for(srfidReaderInfo *info in m_readerList){
+        for(srfidReaderInfo *info in m_readerListSnapshot){
             if([info isActive]) {
                 iConnectedRfidId = [info getReaderID];
                 NSLog(@"iRead: ##### Active Reader ID=%d, Name=%@, Send Stop Inventory Command: srfidStopInventory.", iConnectedRfidId, [info getReaderName]);
@@ -1172,7 +1338,7 @@
 - (IBAction)btClickClear:(id)sender
 {
     [self clearTagDatabase];
-    [self scheduleTagListRefresh];
+    [self refreshTagList];
     self.lbUnique.text = @"";
 }
 
@@ -1192,7 +1358,21 @@
 //        return;
 //    }
     NSLog(@"iRead: Tag Location-ing.....");
-    self.lbStatus.text = @"Tag Location-ing...";
+    if (iConnectedRfidId <= 0) {
+        [self messageBox:@"ERROR: Reader Disconnected" withMessage:@"Click on the Reader Icon Above to Connect"];
+        return;
+    }
+    if (m_selectedTagEPC == nil || m_selectedTagEPC.length == 0) {
+        [self messageBox:@"ERROR: Tag Not Selected" withMessage:@"Select a tag from the tag list before starting locationing"];
+        return;
+    }
+    if (![self isLocatableRfidTag:m_selectedTagEPC]) {
+        m_selectedTagEPC = nil;
+        [self messageBox:@"ERROR: RFID Tag Required" withMessage:@"Select an RFID tag from the tag list before starting locationing"];
+        return;
+    }
+
+    self.lbStatus.text = [NSString stringWithFormat:@"Tag Location-ing %@...", m_selectedTagEPC];
     self.btStart.enabled = false;
     self.btStop.enabled = false;
     self.btAutoScan.enabled = false;
